@@ -1,0 +1,40 @@
+import requests
+from bs4 import BeautifulSoup
+import pandas as pd
+from selenium import webdriver
+import time
+
+from selenium.webdriver.firefox.service import Service as FirefoxService
+from selenium.webdriver.common.by import By
+from webdriver_manager.firefox import GeckoDriverManager
+
+firefox_options = webdriver.FirefoxOptions()
+
+service = FirefoxService(executable_path=GeckoDriverManager().install())
+driver = webdriver.Firefox(service=service, options=firefox_options)
+driver.get("https://www.theparking.eu/used-cars/Supercar.html")
+driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+
+time.sleep(2)
+
+page_source = driver.page_source
+
+soup = BeautifulSoup(page_source, "html.parser")
+
+makes = soup.find_all("span", class_="title-block brand three-dots")
+models = soup.find_all("span", class_="sub-title title-block three-dots")
+prices = soup.find_all("p", class_="prix")
+
+i = 0
+j = 0
+k = 0
+while i < len(makes) and j < len(models) and k < len(prices):
+    make = makes[i].text
+    model = models[j].text
+    price = prices[k].text
+    print(f"Make: {make}, Model: {model}, Price: {price}")
+    i += 2
+    j += 4
+    k += 3
+
+driver.quit()
