@@ -7,6 +7,10 @@ import time
 from selenium.webdriver.firefox.service import Service as FirefoxService
 from selenium.webdriver.common.by import By
 from webdriver_manager.firefox import GeckoDriverManager
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 firefox_options = webdriver.FirefoxOptions()
 
@@ -21,20 +25,36 @@ page_source = driver.page_source
 
 soup = BeautifulSoup(page_source, "html.parser")
 
-makes = soup.find_all("span", class_="title-block brand three-dots")
-models = soup.find_all("span", class_="sub-title title-block three-dots")
-prices = soup.find_all("p", class_="prix")
+button_xpath = "/html/body/section/form/article/nav/span[1]/button"
+button1 = WebDriverWait(driver, 3).until(EC.element_to_be_clickable((By.XPATH, button_xpath)))
+button1.click()
 
-i = 0
-j = 0
-k = 0
-while i < len(makes) and j < len(models) and k < len(prices):
-    make = makes[i].text
-    model = models[j].text
-    price = prices[k].text
-    print(f"Make: {make}, Model: {model}, Price: {price}")
-    i += 2
-    j += 4
-    k += 3
+z=0
+
+while z<5:
+    time.wait(2)
+    button_xpath = "/html/body/div[3]/section[1]/section/div[8]/ul/li[7]"
+    button2 = driver.find_element(By.XPATH, button_xpath)
+
+    button2.click()
+
+    makes = soup.find_all("span", class_="title-block brand three-dots")
+    models = soup.find_all("span", class_="sub-title title-block three-dots")
+    prices = soup.find_all("p", class_="prix")
+
+    i = 0
+    j = 0
+    k = 0
+    print("Page: ", z+1)
+    while i < len(makes) and j < len(models) and k < len(prices):
+        make = makes[i].text
+        model = models[j].text
+        price = prices[k].text
+        print(f"Make: {make}, Model: {model}, Price: {price}")
+        i += 2
+        j += 4
+        k += 3
+    
+    z=z+1
 
 driver.quit()
