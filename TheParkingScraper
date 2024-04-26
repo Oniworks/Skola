@@ -26,18 +26,11 @@ page_source = driver.page_source
 soup = BeautifulSoup(page_source, "html.parser")
 
 button_xpath = "/html/body/section/form/article/nav/span[1]/button"
-button1 = WebDriverWait(driver, 3).until(EC.element_to_be_clickable((By.XPATH, button_xpath)))
-button1.click()
+WebDriverWait(driver, 3).until(EC.element_to_be_clickable((By.XPATH, button_xpath))).click()
 
 z=0
 
 while z<5:
-    time.wait(2)
-    button_xpath = "/html/body/div[3]/section[1]/section/div[8]/ul/li[7]"
-    button2 = driver.find_element(By.XPATH, button_xpath)
-
-    button2.click()
-
     makes = soup.find_all("span", class_="title-block brand three-dots")
     models = soup.find_all("span", class_="sub-title title-block three-dots")
     prices = soup.find_all("p", class_="prix")
