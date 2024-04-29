@@ -29,19 +29,23 @@ soup = BeautifulSoup(page_source, "html.parser")
 makes = soup.find_all("span", class_="title-block brand three-dots")
 models = soup.find_all("span", class_="sub-title title-block three-dots")
 prices = soup.find_all("p", class_="prix")
+#links = soup.find_all("href")
 
 data = []
 i = 0
 j = 0
 k = 0
-while i < len(makes) and j < len(models) and k < len(prices):
+#z = 0
+while i < len(makes) and j < len(models) and k < len(prices) and z < len(links):
     make = makes[i].text
     model = models[j].text
     price = prices[k].text.strip("\n").strip("  ")
-    data.append((make, model, price))
+#    link = links[z].text
+    data.append((make, model, price, link))
     i += 2
     j += 4
     k += 3
+#    z += 1
 
 driver.quit()
 print(data)
