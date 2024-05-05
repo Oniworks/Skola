@@ -8,9 +8,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-#make the whole thing run with tkinter from start to finish instead of just data
-
-
 #https://www.theparking.eu/used-cars/Supercar.html
 site = input("Paste a link from theparking.eu: ")
 
@@ -58,7 +55,3 @@ while d < 5:
     d += 1
 
 driver.quit()
-
-requested = input("What car brand are you looking for? ")
-data_requested = [data for data in data if data[0] == requested]
-print(data_requested)
