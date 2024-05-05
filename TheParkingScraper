@@ -1,53 +1,64 @@
-import requests
 from bs4 import BeautifulSoup
-import pandas as pd
 from selenium import webdriver
 import time
-
 from selenium.webdriver.firefox.service import Service as FirefoxService
-from selenium.webdriver.common.by import By
 from webdriver_manager.firefox import GeckoDriverManager
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
+#make the whole thing run with tkinter from start to finish instead of just data
+
+
+#https://www.theparking.eu/used-cars/Supercar.html
+site = input("Paste a link from theparking.eu: ")
+
 firefox_options = webdriver.FirefoxOptions()
 
 service = FirefoxService(executable_path=GeckoDriverManager().install())
 driver = webdriver.Firefox(service=service, options=firefox_options)
-driver.get("https://www.theparking.eu/used-cars/Supercar.html")
-driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+driver.get(site)
 
-time.sleep(2)
+time.sleep(10)
 
-page_source = driver.page_source
+driver.switch_to.frame("fast-cmp-iframe")
+button_decline = driver.find_element(By.CLASS_NAME, "fast-cmp-home-refuse")
+button_decline.click()
+driver.switch_to.parent_frame()
 
-soup = BeautifulSoup(page_source, "html.parser")
+time.sleep(5)
 
-button_xpath = "/html/body/section/form/article/nav/span[1]/button"
-WebDriverWait(driver, 3).until(EC.element_to_be_clickable((By.XPATH, button_xpath))).click()
+d = 0
+while d < 5:
+    time.sleep(1)
+    page_source = driver.page_source
+    soup = BeautifulSoup(page_source, "html.parser")
 
-z=0
-
-while z<5:
     makes = soup.find_all("span", class_="title-block brand three-dots")
     models = soup.find_all("span", class_="sub-title title-block three-dots")
     prices = soup.find_all("p", class_="prix")
-
+    data = []
     i = 0
     j = 0
     k = 0
-    print("Page: ", z+1)
     while i < len(makes) and j < len(models) and k < len(prices):
         make = makes[i].text
         model = models[j].text
-        price = prices[k].text
-        print(f"Make: {make}, Model: {model}, Price: {price}")
+        price = prices[k].text.strip("\n").strip("  ")
+        data.append((make, model, price))
         i += 2
         j += 4
         k += 3
-    
-    z=z+1
+    button_next = driver.find_element(By.CLASS_NAME, "btn-next")
+    time.sleep(1)
+    print("\n", "Page: ", d + 1)
+    print(data)
+    button_next.click()
+    d += 1
 
 driver.quit()
+
+requested = input("What car brand are you looking for? ")
+data_requested = [data for data in data if data[0] == requested]
+print(data_requested)
