@@ -5,11 +5,13 @@ from selenium.webdriver.firefox.service import Service as FirefoxService
 from webdriver_manager.firefox import GeckoDriverManager
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 
 #https://www.theparking.eu/used-cars/Supercar.html
 site = input("Paste a link from theparking.eu: ")
+
+#Add the option for users to specify the amount of pages they want to scrape and make it so they just have to input the search and not the whole link
+#https://www.theparking.eu/used-cars/{Make this the place where user input goes so it's easier}.html
+#That way user doesn't have to paste a whole link and programm is smoother overall
 
 firefox_options = webdriver.FirefoxOptions()
 
@@ -35,6 +37,7 @@ while d < 5:
     makes = soup.find_all("span", class_="title-block brand three-dots")
     models = soup.find_all("span", class_="sub-title title-block three-dots")
     prices = soup.find_all("p", class_="prix")
+#Need to find a way to make a list for each page or save the list from each page before it gets deleted because of being set to 0 every time a new page starts
     data = []
     i = 0
     j = 0
