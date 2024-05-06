@@ -5,23 +5,27 @@ from selenium.webdriver.firefox.service import Service as FirefoxService
 from webdriver_manager.firefox import GeckoDriverManager
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+
 #Starts programm by asking the userfor the parameters of the search
 modifier = input("Input the type of car you want to look for or model year: ")
 site = ("https://www.theparking.eu/used-cars/{}.html").format(modifier)
 pages = input("Number of pages you want to scrape: ")
 p = int(pages)
+
 #Initiates Firefox and starts the search
 firefox_options = webdriver.FirefoxOptions()
 service = FirefoxService(executable_path=GeckoDriverManager().install())
 driver = webdriver.Firefox(service=service, options=firefox_options)
 driver.get(site)
 time.sleep(10)
+
 #Switches view to the cookies pop-up to click on "Decline" for futher access of the site and then switches back to parent window
 driver.switch_to.frame("fast-cmp-iframe")
 button_decline = driver.find_element(By.CLASS_NAME, "fast-cmp-home-refuse")
 button_decline.click()
 driver.switch_to.parent_frame()
 time.sleep(1)
+
 #Initiates data collection, creates the list and starts the loop
 d = 0
 data = []
@@ -55,14 +59,16 @@ while d < p:
     button_next = driver.find_element(By.CLASS_NAME, "btn-next")
     button_next.click()
     d += 1
+
 #Shuts down Firefox
 driver.quit()
+
 #Prints out all the data
 for car in data:
     print(car)
 time.sleep(10)
+
 #Finds the price of the cheapest car
-#This part is a little finicky, but if the price isn't "POA" it will work fine
 cheapest = float('inf')
 #Initiates loop to find the lowest value
 for cheap in data:
@@ -79,6 +85,7 @@ for cheap in data:
             cheapest = lowprice_float
     except ValueError:
         print("Error converting to float for:", lowprice_str)
+
 #Prints out all the info about the cheapest car
 for i in data:
     #Converts value to a simple integer
