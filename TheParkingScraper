@@ -27,15 +27,15 @@ d = 0
 data = []
 while d < p:
     time.sleep(1)
-#Collects data from each page
+    #Collects data from each page
     page_source = driver.page_source
     soup = BeautifulSoup(page_source, "html.parser")
-#Finds and collects the exact values needed
+    #Finds and collects the exact values needed
     makes = soup.find_all("span", class_="title-block brand three-dots")
     models = soup.find_all("span", class_="sub-title title-block three-dots")
     prices = soup.find_all("p", class_="prix")
     links = soup.find_all("a", class_="external btn-plus no-partenaire-btn", href=True)
-#Goes trough the values and adds them to the list
+    #Goes trough the values and adds them to the list
     i = 0
     j = 0
     k = 0
@@ -51,9 +51,8 @@ while d < p:
         j += 4
         k += 3
         g += 1
-#Finds the button to go to the next page and clicks it, starts the loop for the next page as requested by the user
+    #Finds the button to go to the next page and clicks it, starts the loop for the next page as requested by the user
     button_next = driver.find_element(By.CLASS_NAME, "btn-next")
-    time.sleep(1)
     button_next.click()
     d += 1
 #Shuts down Firefox
@@ -61,17 +60,22 @@ driver.quit()
 #Prints out all the data
 for car in data:
     print(car)
+time.sleep(10)
 #Finds the price of the cheapest car
-cheapest = float('inf') #Honestly don't know what this does
+#This part is a little finicky, but if the price isn't "POA" it will work fine
+cheapest = float('inf')
+i = 0
 for cheap in data:
-#Strips the value of unwanted elements
-    price_str = cheap[2].replace(",", "").replace("€", "")
-    price_float = float(price_str)
-#Compares the values to find the smallest(cheapest) one
-    if price_float < cheapest:
-        cheapest = price_float
+    #Strips the value of unwanted elements
+    lowprice_str = cheap[2].replace(",", "").replace("€", "")
+    lowprice_float = float(lowprice_str)
+    #Compares the values to find the smallest (cheapest) one
+    if lowprice_float < cheapest:
+        cheapest = lowprice_float
 #Prints out all the data for the cheapest car
 for i in data:
-    comp = int(i[2].replace(",", "").replace("€", ""))
-    if comp == cheapest:
+    #Strips the value of unwanted elements
+    compL = int(i[2].replace(",", "").replace("€", ""))
+    if compL == cheapest:
+        print("The cheapest car in your specified search is: ")
         print(i)
