@@ -64,18 +64,34 @@ time.sleep(10)
 #Finds the price of the cheapest car
 #This part is a little finicky, but if the price isn't "POA" it will work fine
 cheapest = float('inf')
-i = 0
+#Initiates loop to find the lowest value
 for cheap in data:
-    #Strips the value of unwanted elements
+    #Converts value to a simple integer
     lowprice_str = cheap[2].replace(",", "").replace("€", "")
-    lowprice_float = float(lowprice_str)
-    #Compares the values to find the smallest (cheapest) one
-    if lowprice_float < cheapest:
-        cheapest = lowprice_float
-#Prints out all the data for the cheapest car
+    #If value is 'POA' skips it
+    if lowprice_str == 'POA':
+        print("Invalid value 'POA', automatically skipping")
+        continue
+    #If the value could cause an error use this statement
+    try:
+        lowprice_float = float(lowprice_str)
+        if lowprice_float < cheapest:
+            cheapest = lowprice_float
+    except ValueError:
+        print("Error converting to float for:", lowprice_str)
+#Prints out all the info about the cheapest car
 for i in data:
-    #Strips the value of unwanted elements
-    compL = int(i[2].replace(",", "").replace("€", ""))
-    if compL == cheapest:
-        print("The cheapest car in your specified search is: ")
-        print(i)
+    #Converts value to a simple integer
+    compL_str = i[2].replace(",", "").replace("€", "")
+    #If value is 'POA' skips it
+    if compL_str == 'POA':
+        print("Invalid value 'POA', automatically skipping")
+        continue
+    #If the value could cause an error use this statement
+    try:
+        compL = int(compL_str)
+        if compL == cheapest:
+            print("The cheapest car in your specified search is: ")
+            print(i)
+    except ValueError:
+        print("Error converting to integer for:", compL_str)
