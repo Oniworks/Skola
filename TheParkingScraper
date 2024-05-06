@@ -6,12 +6,10 @@ from webdriver_manager.firefox import GeckoDriverManager
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
-#https://www.theparking.eu/used-cars/Supercar.html
-site = input("Paste a link from theparking.eu: ")
-
-#Add the option for users to specify the amount of pages they want to scrape and make it so they just have to input the search and not the whole link
-#https://www.theparking.eu/used-cars/{Make this the place where user input goes so it's easier}.html
-#That way user doesn't have to paste a whole link and programm is smoother overall
+modifier = input("Input the type of car you want to look for or model year: ")
+site = ("https://www.theparking.eu/used-cars/{}.html").format(modifier)
+pages = input("Number of pages you want to scrape: ")
+p = int(pages)
 
 firefox_options = webdriver.FirefoxOptions()
 
@@ -26,10 +24,10 @@ button_decline = driver.find_element(By.CLASS_NAME, "fast-cmp-home-refuse")
 button_decline.click()
 driver.switch_to.parent_frame()
 
-time.sleep(5)
+time.sleep(1)
 
 d = 0
-while d < 5:
+while d < p:
     time.sleep(1)
     page_source = driver.page_source
     soup = BeautifulSoup(page_source, "html.parser")
@@ -37,7 +35,7 @@ while d < 5:
     makes = soup.find_all("span", class_="title-block brand three-dots")
     models = soup.find_all("span", class_="sub-title title-block three-dots")
     prices = soup.find_all("p", class_="prix")
-#Need to find a way to make a list for each page or save the list from each page before it gets deleted because of being set to 0 every time a new page starts
+
     data = []
     i = 0
     j = 0
