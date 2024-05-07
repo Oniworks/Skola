@@ -44,7 +44,7 @@ while d < p:
     j = 0
     k = 0
     g = 0
-    while i < len(makes) and j < len(models) and k < len(prices):
+    while i < len(makes) and j < len(models) and k < len(prices) and g < len(links):
         make = makes[i].text
         model = models[j].text
         price = prices[k].text.strip("\n").strip("  ")
@@ -66,39 +66,41 @@ driver.quit()
 #Prints out all the data
 for car in data:
     print(car)
-time.sleep(10)
 
 #Finds the price of the cheapest car
 cheapest = float('inf')
 #Initiates loop to find the lowest value
 for cheap in data:
     #Converts value to a simple integer
-    lowprice_str = cheap[2].replace(",", "").replace("€", "")
+    price_str = cheap[2].replace(",", "").replace("€", "")
     #If value is 'POA' skips it
-    if lowprice_str == 'POA':
+    if price_str == 'POA':
         print("Invalid value 'POA', automatically skipping")
         continue
     #If the value could cause an error use this statement
     try:
-        lowprice_float = float(lowprice_str)
-        if lowprice_float < cheapest:
-            cheapest = lowprice_float
+        price_float = float(price_str)
+        if price_float < cheapest:
+            cheapest = price_float
     except ValueError:
-        print("Error converting to float for:", lowprice_str)
+        print("Error converting to float for:", price_str)
 
 #Prints out all the info about the cheapest car
 for i in data:
     #Converts value to a simple integer
-    compL_str = i[2].replace(",", "").replace("€", "")
+    comp_str = i[2].replace(",", "").replace("€", "")
     #If value is 'POA' skips it
-    if compL_str == 'POA':
+    if comp_str == 'POA':
         print("Invalid value 'POA', automatically skipping")
         continue
     #If the value could cause an error use this statement
     try:
-        compL = int(compL_str)
-        if compL == cheapest:
+        comp = int(comp_str)
+        if comp == cheapest:
             print("The cheapest car in your specified search is: ")
+            print(i)
+    except ValueError:
+        print("Error converting to integer for:", comp_str)
             print(i)
     except ValueError:
         print("Error converting to integer for:", compL_str)
