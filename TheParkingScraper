@@ -101,6 +101,6 @@ for i in data:
             print(i)
     except ValueError:
         print("Error converting to integer for:", comp_str)
-            print(i)
+        print(i)
     except ValueError:
-        print("Error converting to integer for:", compL_str)
+        print("Error converting to integer for:", comp_str)
