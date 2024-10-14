@@ -1,0 +1,155 @@
+Creating a tuning application for an 11-string instrument in Android Studio with Kotlin involves a few key steps. The app will use the device's microphone to listen to the instrument and analyze the pitch. Then, it will compare the detected pitch with the desired pitch for each string, providing feedback on how to adjust the string to reach the correct tuning.
+Steps:
+
+    Setup your Android Studio project:
+        Start a new Android Studio project using Kotlin.
+        Add the required permissions and dependencies for microphone access and audio processing.
+
+    Dependencies:
+        You will need a library to handle pitch detection. For this example, we'll use the TarsosDSP library, which simplifies audio analysis tasks like pitch detection.
+
+    In your build.gradle file, add:
+
+    gradle
+
+implementation 'be.tarsos:dsp:2.4.4'
+
+Permissions: Add the microphone permission in your AndroidManifest.xml:
+
+xml
+
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
+    Main Activity Code:
+        Use the microphone to capture audio and use TarsosDSP for pitch detection.
+        Display the detected pitch and compare it to the desired pitch for each of the 11 strings.
+
+Here’s a basic implementation:
+MainActivity.kt
+
+kotlin
+
+package com.example.instrumenttuner
+
+import android.Manifest
+import android.content.pm.PackageManager
+import android.media.AudioFormat
+import android.media.AudioRecord
+import android.media.MediaRecorder
+import android.os.Bundle
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import be.tarsos.dsp.AudioDispatcher
+import be.tarsos.dsp.io.android.AudioDispatcherFactory
+import be.tarsos.dsp.pitch.PitchDetectionHandler
+import be.tarsos.dsp.pitch.PitchProcessor
+import kotlin.math.abs
+
+class MainActivity : AppCompatActivity() {
+
+    private lateinit var pitchTextView: TextView
+    private lateinit var stringTextView: TextView
+    private val stringFrequencies = listOf(82.41f, 110.00f, 146.83f, 196.00f, 246.94f, 329.63f, 440.00f, 587.33f, 783.99f, 1046.50f, 1318.51f) // Example frequencies for 11 strings
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        pitchTextView = findViewById(R.id.pitchTextView)
+        stringTextView = findViewById(R.id.stringTextView)
+
+        // Request microphone permission
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.RECORD_AUDIO), 1)
+        } else {
+            startPitchDetection()
+        }
+    }
+
+    private fun startPitchDetection() {
+        val dispatcher: AudioDispatcher = AudioDispatcherFactory.fromDefaultMicrophone(22050, 1024, 0)
+
+        val pdh = PitchDetectionHandler { result, _ ->
+            val pitchInHz = result.pitch
+            runOnUiThread {
+                if (pitchInHz > 0) {
+                    pitchTextView.text = "Detected pitch: ${"%.2f".format(pitchInHz)} Hz"
+                    val closestString = findClosestString(pitchInHz)
+                    stringTextView.text = "Closest string frequency: ${"%.2f".format(closestString)} Hz"
+                    showTuningFeedback(pitchInHz, closestString)
+                }
+            }
+        }
+
+        val pitchProcessor = PitchProcessor(PitchProcessor.PitchEstimationAlgorithm.YIN, 22050f, 1024, pdh)
+        dispatcher.addAudioProcessor(pitchProcessor)
+
+        Thread { dispatcher.run() }.start()
+    }
+
+    private fun findClosestString(pitchInHz: Float): Float {
+        return stringFrequencies.minByOrNull { abs(it - pitchInHz) } ?: stringFrequencies[0]
+    }
+
+    private fun showTuningFeedback(detectedPitch: Float, targetPitch: Float) {
+        val difference = detectedPitch - targetPitch
+        if (abs(difference) < 1) {
+            stringTextView.text = "Perfectly tuned!"
+        } else if (difference > 0) {
+            stringTextView.text = "Tune down!"
+        } else {
+            stringTextView.text = "Tune up!"
+        }
+    }
+}
+
+activity_main.xml
+
+xml
+
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <TextView
+        android:id="@+id/pitchTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Detected pitch: "
+        android:textSize="18sp"
+        android:layout_marginTop="50dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <TextView
+        android:id="@+id/stringTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="String: "
+        android:textSize="18sp"
+        android:layout_marginTop="20dp"
+        app:layout_constraintTop_toBottomOf="@id/pitchTextView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+Explanation:
+
+    Microphone Access: The app requests microphone permission to listen for sound from the instrument. The AudioDispatcherFactory is used to capture real-time audio from the microphone.
+
+    Pitch Detection: The PitchProcessor from TarsosDSP is used to analyze the audio and detect the pitch. When a pitch is detected, it's displayed on the screen.
+
+    String Frequencies: The stringFrequencies list holds the target frequencies for each of the 11 strings (you can replace these with the exact values for your instrument). The app compares the detected pitch with the closest target frequency and provides tuning feedback (Tune up!, Tune down!, or Perfectly tuned!).
+
+    Feedback: The showTuningFeedback() function calculates the difference between the detected pitch and the target pitch and provides the user with feedback to adjust the string.
+
+Conclusion:
+
+This app detects the pitch of the instrument and helps the user tune each of the 11 strings by providing real-time feedback. You can customize the string frequencies and adjust the feedback as needed.
